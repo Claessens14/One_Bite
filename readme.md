@@ -12,10 +12,25 @@
  - LLM does the fixes
     - *"In Opus we trust"* 🙏
 
-```
-python __file_name__.py
 
-```
+## Setup
+    Mac: install `bat`
+    ```
+    brew install bat
+    ```
+
+    Mac: add the utility to zsh path
+    ```
+    pwd
+    echo "'aliass onebite=_GLOBAL_PATH_TO_PROGRAM_FILE'" >> ~/.zshrc
+    source ~/.zshrc
+    ```
+
+## Usuage
+    ```
+    (ensure __your_file__ is in a unieque git directory) 
+    onebite __file_name__.py
+    ```
 
 ## ToDo
 
