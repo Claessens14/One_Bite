@@ -14,23 +14,29 @@
 
 
 ## Setup
-    Mac: install `bat`
-    ```
-    brew install bat
-    ```
+ - [ ] Get an anthropic claude key
+ - [ ] Get an OpenI key
+ - [ ] Paste them into the code
 
-    Mac: add the utility to zsh path
-    ```
-    pwd
-    echo "'aliass onebite=_GLOBAL_PATH_TO_PROGRAM_FILE'" >> ~/.zshrc
-    source ~/.zshrc
-    ```
+The reason for two models is incase one model gets stuck. 
+
+Mac: install `bat`, this is for syntax highlighting. 
+```
+brew install bat
+```
+
+Mac: add the utility to zsh path
+```
+pwd
+echo "'aliass onebite=_GLOBAL_PATH_TO_PROGRAM_FILE'" >> ~/.zshrc
+source ~/.zshrc
+```
 
 ## Usuage
-    ```
-    (ensure __your_file__ is in a unieque git directory) 
-    onebite __file_name__.py
-    ```
+```
+(ensure __your_file__ is in a unique git directory) 
+onebite __file_name__.py
+```
 
 ## ToDo
 
@@ -41,7 +47,9 @@
     - `S` Git commit `git add __file_name__.py && git commit -m "user message".` 
     - `M` Manual Edit `vim __file_name__.py`
     - `D` debug at line
-    - `C` Change Model (Claude Opus / OpenAI GPT4)
+    - `O` Toggle Open AI or Opus (Claude Opus / OpenAI GPT4 / Oblvious Opus / Obvious Open AI)
+        - Oblvious means not aware of code or terminal output. 
+    - `C` Clear Chat Memory.
 
 ## Notes
 
