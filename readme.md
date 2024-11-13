@@ -1,4 +1,6 @@
-# One Bite We All Know The Rules
+# One Bite: We All Know The Rules (WIP) 
+
+    *Coding without coding*
 
  - Long Files Only
  - Long Functions Only
