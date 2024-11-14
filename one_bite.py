@@ -81,7 +81,6 @@ load_dotenv()
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 anthropic_api_key = os.getenv("OPUS")
-import ipdb; ipdb.set_trace()
 # Initialize the Anthropic client
 anthropic_client = anthropic.Client(api_key=anthropic_api_key)
 
