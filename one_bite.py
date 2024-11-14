@@ -75,26 +75,28 @@ import anthropic
 import os
 import argparse
 import subprocess
-
 from dotenv import load_dotenv
+from tqdm import tqdm
+import time
+
+# Load environment variables
 load_dotenv()
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 anthropic_api_key = os.getenv("OPUS")
-# Initialize the Anthropic client
-anthropic_client = anthropic.Client(api_key=anthropic_api_key)
 
-# Set the default model to OpenAI GPT
+# Initialize Anthropic client
+anthropic_client = anthropic.Client(api_key=anthropic_api_key)
 current_model = "openai"
 
-def get_openai_response(conversation):
-    """Get a response from OpenAI's GPT model."""
+def get_openai_response(conversation, model="gpt-3.5-turbo"):
+    """Get a response from OpenAI's updated API."""
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Adjust model as needed
+            model=model,
             messages=conversation
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"Error with OpenAI API: {e}")
         return "Sorry, there was an issue with the OpenAI API."
@@ -105,8 +107,8 @@ def get_claude_response(conversation_text):
         response = anthropic_client.completion(
             prompt=conversation_text,
             stop_sequences=[anthropic.HUMAN_PROMPT],
-            max_tokens_to_sample=300,  # Adjust token limit as needed
-            model="claude-2"  # Use desired Claude model
+            max_tokens_to_sample=300,
+            model="claude-2"
         )
         return response['completion'].strip()
     except Exception as e:
@@ -117,7 +119,7 @@ def overwrite_file(file_name, content):
     """Overwrite a file with the given content."""
     with open(file_name, 'w') as file:
         file.write(content)
-    print(f"File '{file_name}' has been overwritten with new content.")
+    print(f"File '{file_name}' has been overwritten.")
 
 def commit_to_git(file_name, save_message):
     """Run git add and commit for the specified file."""
@@ -127,6 +129,18 @@ def commit_to_git(file_name, save_message):
         print(f"Changes to '{file_name}' committed with message: '{save_message}'")
     except subprocess.CalledProcessError as e:
         print(f"Error with git command: {e}")
+
+def view_file_with_bat(file_name):
+    """View the file with syntax highlighting using `bat`."""
+    try:
+        subprocess.run(f'bat {file_name}', shell=True)
+    except FileNotFoundError:
+        print("Error: 'bat' is not installed or not found in PATH.")
+
+def progress_bar(seconds):
+    """Display a progress bar for given seconds."""
+    for _ in tqdm(range(seconds), desc="Processing...", ncols=100):
+        time.sleep(1)
 
 def run_python_file(file_name):
     """Run the specified Python file and capture the output."""
@@ -139,12 +153,10 @@ def run_python_file(file_name):
         return f"Error: {e}"
 
 def chat_with_ai(file_content, file_name):
-    print("Welcome to the AI Chat! Type 'switch' to switch models, 'exit' to end the conversation.")
-    conversation = []
-    conversation_claude = []
+    print("Welcome to AI Chat! Type 'switch' to switch models, 'exit' to end.")
+    conversation, conversation_claude = [], []
 
     while True:
-        # Get user input
         user_input = input("You: ")
         if user_input.lower() == "exit":
             print("Goodbye!")
@@ -154,54 +166,45 @@ def chat_with_ai(file_content, file_name):
             current_model = "claude" if current_model == "openai" else "openai"
             print(f"Switched to {current_model} model.")
             continue
+        elif user_input.lower() == "view":
+            view_file_with_bat(file_name)
+            continue
         elif user_input.lower() == "run":
-            # Run the file and optionally add the output to the next AI message
             file_output = run_python_file(file_name)
             continue
 
         # Combine file content with user input
         full_message = f"{file_content}\n\nUser Message:\n{user_input}"
 
-        # Handle conversation differently for OpenAI GPT and Claude
         if current_model == "openai":
-            # OpenAI requires a list of dictionaries for conversation
             conversation.append({"role": "user", "content": full_message})
+            progress_bar(3)
             ai_reply = get_openai_response(conversation)
             print(f"OpenAI: {ai_reply}")
-            # Append AI's reply to the conversation
             conversation.append({"role": "assistant", "content": ai_reply})
 
         elif current_model == "claude":
-            # Claude requires a single string with human and AI prompts
             conversation_claude.append(f"{anthropic.HUMAN_PROMPT} {full_message} {anthropic.AI_PROMPT}")
             conversation_text = "".join(conversation_claude)
+            progress_bar(3)
             ai_reply = get_claude_response(conversation_text)
             print(f"Claude: {ai_reply}")
-            # Append AI's reply to the Claude conversation
             conversation_claude.append(ai_reply)
 
-        # Check if the AI response should be written to the file
-        save_prompt = input("Do you want to save this response to the file? (yes/no): ").strip().lower()
-        if save_prompt == 'yes':
+        if input("Save response to file? (yes/no): ").strip().lower() == 'yes':
             overwrite_file(file_name, ai_reply)
-            # Ask for a commit message
-            save_message = input("Enter a commit message for git: ").strip()
+            save_message = input("Commit message: ").strip()
             commit_to_git(file_name, save_message)
 
-        # Optionally run the file and include output in next message
-        run_prompt = input("Do you want to run the file and include its output in the next message? (yes/no): ").strip().lower()
-        if run_prompt == 'yes':
+        if input("Run file and include output in next message? (yes/no): ").strip().lower() == 'yes':
             file_output = run_python_file(file_name)
-            # Append the output to the next message to the AI
             file_content += f"\n\nExecution Output:\n{file_output}"
 
 if __name__ == "__main__":
-    # Argument parsing to specify a file path
-    parser = argparse.ArgumentParser(description="AI Chat with OpenAI and Claude, with file content included in each message.")
-    parser.add_argument("file", help="Path to the file to include in all messages")
+    parser = argparse.ArgumentParser(description="AI Chat with OpenAI and Claude.")
+    parser.add_argument("file", help="Path to the file to include in messages")
     args = parser.parse_args()
 
-    # Check if API keys are provided
     if not openai_api_key:
         print("Error: OpenAI API key is missing.")
     if not anthropic_api_key:
@@ -209,16 +212,12 @@ if __name__ == "__main__":
     if openai_api_key and anthropic_api_key:
         openai.api_key = openai_api_key
 
-        # Read the file content
         try:
             with open(args.file, 'r') as file:
                 file_content = file.read()
+            chat_with_ai(file_content, args.file)
         except FileNotFoundError:
             print(f"Error: The file '{args.file}' was not found.")
-            exit(1)
-
-        # Start the chat with file content
-        chat_with_ai(file_content, args.file)
     else:
-        print("Please ensure both OpenAI and Anthropic API keys are set.")
+        print("Please ensure both API keys are set.")
 
