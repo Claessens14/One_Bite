@@ -30,12 +30,14 @@ import os
 import argparse
 import subprocess
 
-# Set up API keys
-openai_api_key = os.getenv("OPENAI_API_KEY")
-anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+from dotenv import load_dotenv
+load_dotenv()
 
+openai_api_key = os.getenv("OPENAI_API_KEY")
+anthropic_api_key = os.getenv("OPUS")
+import ipdb; ipdb.set_trace()
 # Initialize the Anthropic client
-anthropic_client = anthropic.Client(anthropic_api_key)
+anthropic_client = anthropic.Client(api_key=anthropic_api_key)
 
 # Set the default model to OpenAI GPT
 current_model = "openai"

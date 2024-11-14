@@ -20,9 +20,19 @@
 
 The reason for two models is incase one model gets stuck. 
 
+(optional) use a virtual env for python
+```
+python3 -m venv venv && source venv/bin/activate
+```
+
 Mac: install `bat`, this is for syntax highlighting. 
 ```
 brew install bat
+```
+
+python packages
+```
+pip install anthropic openai
 ```
 
 Mac: add the utility to zsh path
@@ -50,6 +60,7 @@ onebite __file_name__.py
     - `O` Toggle Open AI or Opus (Claude Opus / OpenAI GPT4 / Oblvious Opus / Obvious Open AI)
         - Oblvious means not aware of code or terminal output. 
     - `C` Clear Chat Memory.
+    - `U` Discards the file changes `git restore __file_name__.py`
 
 ## Notes
 
