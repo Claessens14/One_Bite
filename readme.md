@@ -61,7 +61,10 @@ onebite __file_name__.py
         - Oblvious means not aware of code or terminal output. 
     - `C` Clear Chat Memory.
     - `U` Discards the file changes `git restore __file_name__.py`
-
+    - `E` Export export file contents via `cat` and copy (`cmd+c`)
+ - [ ] strip the newlines from the input (because of pasting)
+ - [ ] fix open ai model
+ - [ ] Import readme extension
 ## Notes
 
 
